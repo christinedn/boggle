@@ -74,12 +74,11 @@ void Dictionary::copyOther(const Dictionary &otherDict) {
 
 // helper function for the copyOther function
 void Dictionary::copyHelper(Dictionary::Node *&thisTree, Dictionary::Node *otherTree) {
-    // this checks if you are copying an empty tree?
+    // this checks if you are copying an empty tree
     if (otherTree == nullptr) {
         thisTree = nullptr;
         return;
     }
-
 
     thisTree = new Node;
     thisTree->isWord = otherTree->isWord;

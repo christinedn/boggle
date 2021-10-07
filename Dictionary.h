@@ -51,7 +51,7 @@ private:
 
         // It is strongly recommended you create a constructor
         // to set default values
-        Node* charArr[NUM_CHARS]; // array of node pointers. each index of the array will represent a letter
+        Node* charArr[NUM_CHARS]; // array of node pointers. each index of the array will represent a letter.
         bool isWord = false; // indicates if the path to the node is a word
     };
 

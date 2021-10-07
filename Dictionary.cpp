@@ -33,9 +33,13 @@ Dictionary::Dictionary(string filename) {
 
 }
 
-//Dictionary &Dictionary::operator=(const Dictionary &otherDict) {
-//    return <#initializer#>;
-//}
+Dictionary &Dictionary::operator=(const Dictionary &otherDict) {
+    // i = i;
+    if (this != &otherDict) {
+        copyOther(otherDict);
+    }
+    return *this;
+}
 
 void Dictionary::LoadDictionaryFile(string filename) {
 
@@ -79,7 +83,6 @@ void Dictionary::copyHelper(Dictionary::Node *&thisTree, Dictionary::Node *other
         thisTree = nullptr;
         return;
     }
-
     thisTree = new Node;
     thisTree->isWord = otherTree->isWord;
     for (int i = 0; i < NUM_CHARS; i++) {

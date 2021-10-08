@@ -51,7 +51,7 @@ private:
 
         // It is strongly recommended you create a constructor
         // to set default values
-        Node* charArr[NUM_CHARS]; // array of node pointers. each index of the array will represent a letter.
+        Node* nodeArr[NUM_CHARS]; // array of node pointers. each index of the array will represent a letter.
         bool isWord = false; // indicates if the path to the node is a word
         Node* next;
     };
@@ -65,7 +65,7 @@ private:
 
     // Any private methods you need/want
     // You may change these helpers if you want, but you don't need to.
-    void destroyHelper(Node* thisTree);
+    void destroyHelper(Node*& thisTree); // change to pass by reference?????
     void copyHelper(Node*& thisTree, Node* otherTree);
     void SaveDictionaryHelper(Node* curr, string currPrefix, ofstream& outFile);
 };

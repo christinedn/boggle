@@ -1,4 +1,5 @@
 #include "Dictionary.h"
+#include <fstream>
 
 // Your code here
 
@@ -8,23 +9,17 @@ Dictionary::Dictionary() {
 
     // make each position of the branch array null
     for (int i = 0; i < NUM_CHARS; i++) {
-        root->charArr[i] = nullptr;
-        // set each index of char charArr boolean to false
-        root->charArr[i]->isWord = false;
+        root->nodeArr[i] = nullptr;
     }
 
-    //root->isWord = false;
+    root->isWord = false;
     numWords = 0;
 }
 
-// destructor
-//Dictionary::~Dictionary() {
-//
-//}
+Dictionary::~Dictionary() {
+    destroyHelper(root); // ???????
+}
 
-// copy constructor
-// copies all the contents of otherDict to this
-// use copyOther function complete this function
 Dictionary::Dictionary(const Dictionary &otherDict) {
     root = new Node;
     numWords = 0;
@@ -32,7 +27,8 @@ Dictionary::Dictionary(const Dictionary &otherDict) {
 }
 
 Dictionary::Dictionary(string filename) {
-
+    root = new Node;
+    LoadDictionaryFile(filename);
 }
 
 Dictionary &Dictionary::operator=(const Dictionary &otherDict) {
@@ -44,13 +40,35 @@ Dictionary &Dictionary::operator=(const Dictionary &otherDict) {
 }
 
 void Dictionary::LoadDictionaryFile(string filename) {
+    ifstream myFile;
+    string inputWord;
+    myFile.open(filename);
 
+    if (!myFile.is_open())
+        throw "File failed to open";
+
+    // read contents of the file
+    while (myFile) {
+        myFile >> inputWord;
+        AddWord(inputWord);
+    }
+    myFile.close();
 }
 
 void Dictionary::SaveDictionaryFile(string filename) {
+    ofstream myFile;
+    myFile.open(filename);
 
+    if (!myFile.is_open())
+        throw DictionaryError(filename + "failed to open");
+
+    // write all words that exists in the tree to the file
+    SaveDictionaryHelper();
+
+    myFile.close();
 }
 
+// this function is not complete
 void Dictionary::AddWord(string word) {
     Node* curr = root;
     Node* newNode;
@@ -62,31 +80,77 @@ void Dictionary::AddWord(string word) {
             throw DictionaryError("Invalid character");
         }
 
-        // create a variable to find which index the letter is located in the charArr
+        // create a variable to find which index the letter is located in the nodeArr
         int letterIndex = (int)word[i] - (int)'a';
         // check if the branch for that character is nullptr
-        if (curr->charArr[letterIndex] == nullptr) {
+        if (curr->nodeArr[letterIndex] == nullptr) {
             newNode = new Node();
-            // make a branch from letterIndex to newNode->charArr[word[next letter]];
-            curr->charArr[letterIndex]->next = newNode;
-            newNode->isWord = false; // ????????
+            // make a branch from letterIndex to newNode
+            curr->nodeArr[letterIndex]->next = newNode; // ???????
+            newNode->isWord = false;
         }
-        curr = newNode;
+        curr = newNode; // ????????????
     }
-    int lastLetterIndex = (int)word[word.length()-1] - (int)'a';
-    curr->charArr[lastLetterIndex]->isWord = true;
+    curr->isWord = true;
+    numWords++;
 }
 
 void Dictionary::MakeEmpty() {
+    destroyHelper(root);
 
+    // remake root
+    root = new Node;
+    numWords = 0;
 }
 
 bool Dictionary::IsWord(string word) {
-    return false;
+    Node* curr = root;
+    for (int i = 0; i < word.length(); i++) {
+
+        // check if letters are between 'a' and 'z'
+        // a = 97, z = 122 in ASCII
+        if ((int)word[i] < 97 || (int)word[i] > 122) {
+            throw DictionaryError("Invalid character");
+        }
+
+        int letterIndex = (int)word[i] - (int)'a';
+        if (curr->nodeArr[letterIndex] != nullptr) {
+            curr = curr->nodeArr[letterIndex]->next; // ??????
+        } else {
+            return false;
+        }
+
+        if (i == word.length()-1) {
+            if (curr->isWord == true) {
+                return true;
+            }
+        }
+    }
+    //return false;
 }
 
 bool Dictionary::IsPrefix(string word) {
-    return false;
+    Node* curr = root;
+    for (int i = 0; i < word.length(); i++) {
+
+        // check if letters are between 'a' and 'z'
+        // a = 97, z = 122 in ASCII
+        if ((int)word[i] < 97 || (int)word[i] > 122) {
+            throw DictionaryError("Invalid character");
+        }
+
+        int letterIndex = (int)word[i] - (int)'a';
+        if (curr->nodeArr[letterIndex] != nullptr) {
+            curr = curr->nodeArr[letterIndex]->next; // ??????
+        } else {
+            return false;
+        }
+
+        if (i == word.length()-1) {
+            return true;
+        }
+    }
+    //return false;
 }
 
 int Dictionary::WordCount() {
@@ -110,12 +174,18 @@ void Dictionary::copyHelper(Dictionary::Node *&thisTree, Dictionary::Node *other
     thisTree = new Node;
     thisTree->isWord = otherTree->isWord;
     for (int i = 0; i < NUM_CHARS; i++) {
-        copyHelper(thisTree->charArr[i], otherTree->charArr[i]);
+        copyHelper(thisTree->nodeArr[i], otherTree->nodeArr[i]);
     }
 }
 
-void Dictionary::destroyHelper(Dictionary::Node *thisTree) {
-
+void Dictionary::destroyHelper(Dictionary::Node *&thisTree) {
+    if (thisTree == nullptr) {
+        return;
+    }
+    for (int i = 0; i < NUM_CHARS; i++) {
+        destroyHelper(thisTree->nodeArr[i]);
+        delete thisTree->nodeArr[i];
+    }
 }
 
 

@@ -2,6 +2,13 @@
 #include <fstream>
 
 // Your code here
+// default constructor for Node
+Dictionary::Node::Node() {
+    for (int i = 0; i < NUM_CHARS; i++) {
+        nodeArr[i] = nullptr;
+    }
+}
+
 
 // default constructor
 Dictionary::Dictionary() {
@@ -63,7 +70,6 @@ void Dictionary::LoadDictionaryFile(string filename) {
     myFile.close();
 }
 
-// check if there exists a word in the root
 void Dictionary::SaveDictionaryFile(string filename) {
     ofstream myFile;
     myFile.open(filename);
@@ -80,10 +86,9 @@ void Dictionary::SaveDictionaryFile(string filename) {
             char convertToChar = char(i + (int)'a');
             string s1{convertToChar};
             // pass in that string to SaveDictionaryHelper
-            SaveDictionaryHelper(root, s1, myFile);
+            SaveDictionaryHelper(root->nodeArr[i], s1, myFile);
         }
     }
-
     myFile.close();
 }
 
@@ -108,7 +113,7 @@ void Dictionary::AddWord(string word) {
         }
         curr = curr->nodeArr[letterIndex];
     }
-    // at this point, curr is at the node in which where a word exists
+    // at this point, curr is at the node in which a path exists for a word
     curr->isWord = true;
     numWords++;
 }
@@ -149,8 +154,13 @@ bool Dictionary::IsWord(string word) {
 
 bool Dictionary::IsPrefix(string word) {
     Node* curr = root;
-    for (int i = 0; i < word.length(); i++) {
 
+    // an empty string is a prefix of any string
+    if (word.length() == 0) {
+        return true;
+    }
+
+    for (int i = 0; i < word.length(); i++) {
         // check if letters are between 'a' and 'z'
         // a = 97, z = 122 in ASCII
         if ((int)word[i] < 97 || (int)word[i] > 122) {
@@ -168,7 +178,7 @@ bool Dictionary::IsPrefix(string word) {
             return true;
         }
     }
-    //return false;
+    return false;
 }
 
 int Dictionary::WordCount() {

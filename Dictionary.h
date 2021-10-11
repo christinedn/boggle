@@ -53,7 +53,12 @@ private:
         // to set default values
         Node* nodeArr[NUM_CHARS]; // array of node pointers. each index of the array will represent a letter.
         bool isWord = false; // indicates if the path to the node is a word
+
+        // constructor definition
+        Node();
     };
+
+
 
     Node* root;
     int numWords;

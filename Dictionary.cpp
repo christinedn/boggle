@@ -48,7 +48,7 @@ void Dictionary::LoadDictionaryFile(string filename) {
         throw "File failed to open";
 
     // read contents of the file
-    while (myFile) {
+    while (!myFile.eof()) {
         myFile >> inputWord;
         AddWord(inputWord);
     }
@@ -79,7 +79,6 @@ void Dictionary::SaveDictionaryFile(string filename) {
     myFile.close();
 }
 
-// this function is not complete
 void Dictionary::AddWord(string word) {
     Node* curr = root;
     for (int i = 0; i < word.length(); i++) {

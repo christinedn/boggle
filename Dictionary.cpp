@@ -55,15 +55,26 @@ void Dictionary::LoadDictionaryFile(string filename) {
     myFile.close();
 }
 
+// check if there exists a word in the root
 void Dictionary::SaveDictionaryFile(string filename) {
     ofstream myFile;
     myFile.open(filename);
 
     if (!myFile.is_open())
-        throw DictionaryError(filename + "failed to open");
+        throw DictionaryError(filename + " failed to open");
 
     // write all words that exists in the tree to the file
-    SaveDictionaryHelper();
+    // loop through all indexes in root to see which branches exist
+    for (int i = 0; i < NUM_CHARS; i++) {
+        if (root->nodeArr[i] != nullptr) {
+            // at this point, that means the there is a branch from that letter
+            // convert that index into a string
+            char convertToChar = char(i + (int)'a');
+            string s1{convertToChar};
+            // pass in that string to SaveDictionaryHelper
+            SaveDictionaryHelper(root, s1, myFile);
+        }
+    }
 
     myFile.close();
 }
@@ -71,7 +82,6 @@ void Dictionary::SaveDictionaryFile(string filename) {
 // this function is not complete
 void Dictionary::AddWord(string word) {
     Node* curr = root;
-    Node* newNode;
     for (int i = 0; i < word.length(); i++) {
 
         // check if letters are between 'a' and 'z'
@@ -84,12 +94,11 @@ void Dictionary::AddWord(string word) {
         int letterIndex = (int)word[i] - (int)'a';
         // check if the branch for that character is nullptr
         if (curr->nodeArr[letterIndex] == nullptr) {
-            newNode = new Node();
             // make a branch from letterIndex to newNode
-            curr->nodeArr[letterIndex]->next = newNode; // ???????
-            newNode->isWord = false;
+            curr->nodeArr[letterIndex] = new Node;
+            curr->nodeArr[letterIndex]->isWord = false;
         }
-        curr = newNode; // ????????????
+        curr = curr->nodeArr[letterIndex];
     }
     curr->isWord = true;
     numWords++;
@@ -115,7 +124,7 @@ bool Dictionary::IsWord(string word) {
 
         int letterIndex = (int)word[i] - (int)'a';
         if (curr->nodeArr[letterIndex] != nullptr) {
-            curr = curr->nodeArr[letterIndex]->next; // ??????
+            curr = curr->nodeArr[letterIndex]; // ??????
         } else {
             return false;
         }
@@ -141,7 +150,7 @@ bool Dictionary::IsPrefix(string word) {
 
         int letterIndex = (int)word[i] - (int)'a';
         if (curr->nodeArr[letterIndex] != nullptr) {
-            curr = curr->nodeArr[letterIndex]->next; // ??????
+            curr = curr->nodeArr[letterIndex]; // ??????
         } else {
             return false;
         }
@@ -188,8 +197,20 @@ void Dictionary::destroyHelper(Dictionary::Node *&thisTree) {
     }
 }
 
-
-
 void Dictionary::SaveDictionaryHelper(Dictionary::Node *curr, string currPrefix, ofstream &outFile) {
+    if (curr == nullptr)
+        return;
 
+    if (curr->isWord == true) {
+        outFile << currPrefix << endl;
+    }
+
+    for (int i = 0; i < NUM_CHARS; i++) {
+        if (curr->nodeArr[i] != nullptr) {
+            // convert from int to string
+            char convertToChar = char(i + (int)'a');
+            string s1{convertToChar};
+            SaveDictionaryHelper(curr->nodeArr[i], currPrefix + s1, outFile);
+        }
+    }
 }

@@ -28,6 +28,14 @@ Dictionary::Dictionary(const Dictionary &otherDict) {
 
 Dictionary::Dictionary(string filename) {
     root = new Node;
+
+    for (int i = 0; i < NUM_CHARS; i++) {
+        root->nodeArr[i] = nullptr;
+    }
+
+    root->isWord = false;
+    numWords = 0;
+
     LoadDictionaryFile(filename);
 }
 
@@ -93,12 +101,14 @@ void Dictionary::AddWord(string word) {
         int letterIndex = (int)word[i] - (int)'a';
         // check if the branch for that character is nullptr
         if (curr->nodeArr[letterIndex] == nullptr) {
-            // make a branch from letterIndex to newNode
+            // make a branch from letterIndex to a new node
             curr->nodeArr[letterIndex] = new Node;
+            // set flag of this new node to false
             curr->nodeArr[letterIndex]->isWord = false;
         }
         curr = curr->nodeArr[letterIndex];
     }
+    // at this point, curr is at the node in which where a word exists
     curr->isWord = true;
     numWords++;
 }

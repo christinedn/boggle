@@ -27,6 +27,26 @@ void GetBoard(string board[BOARD_SIZE][BOARD_SIZE]) {
 }
 
 void HardCodedBoard(string board[BOARD_SIZE][BOARD_SIZE]) {
+//    board[0][0] = "h";
+//    board[0][1] = "i";
+//    board[0][2] = "q";
+//    board[0][3] = "q";
+//
+//    board[1][0] = "q";
+//    board[1][1] = "q";
+//    board[1][2] = "q";
+//    board[1][3] = "q";
+//
+//    board[2][0] = "q";
+//    board[2][1] = "q";
+//    board[2][2] = "q";
+//    board[2][3] = "q";
+//
+//    board[3][0] = "q";
+//    board[3][1] = "q";
+//    board[3][2] = "q";
+//    board[3][3] = "q";
+
     board[0][0] = "a";
     board[0][1] = "u";
     board[0][2] = "c";

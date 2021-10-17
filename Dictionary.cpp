@@ -149,7 +149,7 @@ bool Dictionary::IsWord(string word) {
             }
         }
     }
-    //return false;
+    return false;
 }
 
 bool Dictionary::IsPrefix(string word) {

@@ -3,12 +3,7 @@
 #include "Boggle.h"
 
 // Your code here
-/*
- * Dictionary dict; // this dictionary object holds all valid words in the dictionary
-    Dictionary wordsFound; // this dictionary object stores all the words found on the board
-    string board[BOARD_SIZE][BOARD_SIZE];
-    int visited[BOARD_SIZE][BOARD_SIZE]; // update this board each time you visit a position on the board
- */
+
 Boggle::Boggle() {
     // initialize dict with words from dictionary.txt
     dict.LoadDictionaryFile("dictionary.txt");
@@ -28,7 +23,7 @@ Boggle::Boggle() {
     }
 }
 
-// allow us to have a customize dictionary to load into the dictionary variable
+// allow us to have a customized dictionary to load into the dictionary variable
 Boggle::Boggle(string filename) {
     // initialize dict with words from dictionary.txt
     dict.LoadDictionaryFile(filename);
@@ -43,65 +38,35 @@ Boggle::Boggle(string filename) {
     // initialize each entry of visited to false
     for (int i = 0; i < BOARD_SIZE; i++) {
         for (int j = 0; j < BOARD_SIZE; j++) {
-            visited[i][j] = 0; // 0 = false
+            visited[i][j] = 0;
         }
     }
 }
 
-// this function should copy each entry of board to this->board
-// void Boggle::SetBoard(string (*board)[BOARD_SIZE][BOARD_SIZE]); ???
-void Boggle::SetBoard(string (*board)[4]) {
+void Boggle::SetBoard(string board[BOARD_SIZE][BOARD_SIZE]) {
     for (int i = 0; i < BOARD_SIZE; i++) {
         for (int j = 0; j < BOARD_SIZE; j++) {
-            this->board[i][j] = board[i][j]; // ??????
+            this->board[i][j] = board[i][j];
         }
     }
 }
 
-// call solveBoardHelper 16 times for each position on the board
-// this function is a wrapper function for SolveBoardHelper
-// finds all the words on the current board stored by board and saves these words into wordsFound ????????
-// this function should reset the wordsFound dictionary each time it is run ?????????
 void Boggle::SolveBoard(bool printBoard, ostream &output) {
     for (int i = 0; i < BOARD_SIZE; i++) {
         for (int j = 0; j < BOARD_SIZE; j++) {
-            SolveBoardHelper(i, j, BOARD_SIZE, BOARD_SIZE, "", output);
-            // SolveBoardHelper saves the words into wordsFound
+            SolveBoardHelper(i, j, i, j, board[i][j], output, 1, printBoard);
         }
     }
-    if (printBoard == true)
-        PrintBoard(output);
 }
 
-// saves all the words from the last solve
-// for each position on the board, find all the words on the board starting at this position
-// this should use SaveDictionaryFile for the words found
 void Boggle::SaveSolve(string filename) {
-    wordsFound.SaveDictionaryFile();
-    for (int i = 0; i < BOARD_SIZE; i++) {
-        for (int j = 0 ; j < BOARD_SIZE; j++) {
-            //SolveBoardHelper(i, j, BOARD_SIZE, BOARD_SIZE, matrix[i][j], );
-        }
-    }
+    wordsFound.SaveDictionaryFile(filename);
 }
 
-// the job of this function is to recursively check surrounding 8 positions
-// check inbounds first then check if the position has been visited or not
-// have some sort of string to remember what path, keep concatenating letters to the string
-// use the isPrefix method to prevent exploration of paths that do not produce words
-// need a way to remember all the previously visited spaces, a way to remember words you have already found
-// order of base cases matters
-void Boggle::SolveBoardHelper(int row, int col, int rowSz, int colSz, string currString, ostream& output) {
 
-    // base case (?): check if the currString is a word or not
-    if (dict.IsWord(currString)) {
-        output << currString;
-        wordsFound.AddWord(currString);
-        //return; // ????? ex) CAT, CATS
-    }
-
+void Boggle::SolveBoardHelper(int row, int col, int startRow, int startCol, string currString, ostream& output, int mark, bool printBoard) {
     // base case: inbound checking
-    if (row < 0 || row > rowSz || col < 0 || col > rowSz) {
+    if (row < 0 || row > (BOARD_SIZE-1) || col < 0 || col > (BOARD_SIZE-1)) {
         return;
     }
 
@@ -116,27 +81,94 @@ void Boggle::SolveBoardHelper(int row, int col, int rowSz, int colSz, string cur
     }
 
     // mark each position as visited as you go through the matrix
-    int mark = 1;
     visited[row][col] = mark;
     mark++;
 
-    SolveBoardHelper(row - 1, col, BOARD_SIZE, BOARD_SIZE, currString + board[row-1][col], output); // N
-    SolveBoardHelper(row - 1, col + 1, BOARD_SIZE, BOARD_SIZE, currString + board[row-1][col+1], output); // NE
-    SolveBoardHelper(row, col + 1, BOARD_SIZE, BOARD_SIZE, currString + board[row][col+1], output); // E
-    SolveBoardHelper(row + 1, col + 1, BOARD_SIZE, BOARD_SIZE, currString + board[row+1][col+1], output); // SE
-    SolveBoardHelper(row + 1, col, BOARD_SIZE, BOARD_SIZE, currString + board[row+1][col], output); // S
-    SolveBoardHelper(row + 1, col - 1, BOARD_SIZE, BOARD_SIZE, currString + board[row+1][col-1], output); // SW
-    SolveBoardHelper(row, col - 1, BOARD_SIZE, BOARD_SIZE, currString + board[row][col-1], output); // W
-    SolveBoardHelper(row - 1, col - 1, BOARD_SIZE, BOARD_SIZE, currString + board[row-1][col-1], output); // NW
+    // base case (?): check if the currString is a word or not
+    if (dict.IsWord(currString)) {
+        output << currString << endl;
+        wordsFound.AddWord(currString);
+        if (printBoard) {
+            PrintBoard(output);
+        }
+    }
 
-    if (!dict.IsWord(currString)) { // ???????
+    string north, northeast, east, southeast, south, southwest, west, northwest;
+    // the if statements below will combine the N/NE/E/etc.. strings accordingly depending on whether or not they exist
+    if (row == 0) {
+        northwest = currString;
+        north = currString;
+        northeast = currString;
+    } else {
+        if (col == 0) {
+            northwest = currString;
+        } else {
+            northwest = currString + board[row-1][col-1];
+        }
+        north = currString + board[row-1][col];
+        if (col == BOARD_SIZE - 1) {
+            northeast = currString;
+        } else {
+            northeast = currString + board[row-1][col+1];
+        }
+    }
+
+    if (col == BOARD_SIZE-1) {
+        east = currString;
+        southeast = currString;
+    } else {
+        east = currString + board[row][col+1];
+        if (row == BOARD_SIZE - 1) {
+            southeast = currString;
+        } else {
+            southeast = currString + board[row+1][col+1];
+        }
+    }
+
+    if (row == BOARD_SIZE-1) {
+        south = currString;
+        southwest = currString;
+    } else {
+        if (col == 0) {
+            southwest = currString;
+        } else {
+            southwest = currString + board[row+1][col-1];
+        }
+        south = currString + board[row+1][col];
+    }
+
+    if (col == 0) {
+        west = currString;
+    } else {
+        west = currString + board[row][col-1];
+    }
+
+    SolveBoardHelper(row - 1, col, startRow, startCol, north, output, mark, printBoard); // N
+    SolveBoardHelper(row - 1, col + 1, startRow, startCol, northeast, output, mark, printBoard); // NE
+    SolveBoardHelper(row, col + 1, startRow, startCol, east, output, mark, printBoard); // E
+    SolveBoardHelper(row + 1, col + 1, startRow, startCol, southeast, output, mark, printBoard); // SE
+    SolveBoardHelper(row + 1, col, startRow, startCol, south, output, mark, printBoard); // S
+    SolveBoardHelper(row + 1, col - 1, startRow, startCol, southwest, output, mark, printBoard); // SW
+    SolveBoardHelper(row, col - 1, startRow, startCol, west, output, mark, printBoard); // W
+    SolveBoardHelper(row - 1, col - 1, startRow, startCol, northwest, output, mark, printBoard); // NW
+
+    // setting the last visited position back to 0
+    if (dict.IsPrefix(currString) && !(row == startRow && col == startCol)) {
         visited[row][col] = 0;
+    } else {
+            for (int i = 0; i < BOARD_SIZE; i++) {
+                for (int j = 0; j < BOARD_SIZE; j++) {
+                    if (i == startRow && j == startCol) {
+                        continue;
+                    }
+                    visited[i][j] = 0;
+                }
+            }
     }
 }
 
 void Boggle::PrintBoard(ostream &output) {
     for (int i = 0; i < BOARD_SIZE; i++) {
-
         // print the nth row in the board matrix
         for (int j = 0; j < BOARD_SIZE; j++) {
             // check if need to print out quotes or not
@@ -153,7 +185,8 @@ void Boggle::PrintBoard(ostream &output) {
         for (int k = 0; k < BOARD_SIZE; k++) {
             output << "  " << visited[i][k] << " ";
         }
-    };
+        cout << endl;
+    }
 }
 
 

@@ -41,8 +41,11 @@ and pushing regularly.
    `Node` definition to accommodate the extra characters?
    
    ```c++
+   const int NUM_UNICODE = 143859;
    class Node {
-    // Your answer here
+       Node* nodeArr[NUM_UNICODE];
+       bool isWord = false;
+       Node();
    };
    ```
    
@@ -50,24 +53,25 @@ and pushing regularly.
     `dictionary.txt` file. In the worse case scenario, how many comparisons 
     would it take to find out if a word is in the dictionary?
     
-    > Your answer here
+    > O(n) since there is a possibility that the path along the tree might look like a linked list.
 
 3.  Suppose you use a prefix tree to store the words from the `dictionary.txt` 
     file. In the worse case scenario, how many comparisons would it 
     take to find out if a word is in the dictionary using the `Dictionary` 
     class?
     
-    > Your answer here
+    > O(n)
 
 4.  Why is the prefix tree better than a binary search tree for implementing 
     Boggle?
 
-    > Your answer here
+    > A prefix tree is better than binary tree because each node can have more than 2 branches which makes traveling/finding a path to a word a lot faster.
 
 5.  Suppose you do not use `IsPrefix` in your `SolveBoard` implementation.  
     How would that affect the program?
 
-    > Your answer here
+    > We would not know which direction to go to find a specific word since we do not have isPrefix to tell us if we are going in the right direction or not.
+
 
 ## Recommended Implementation Order
 

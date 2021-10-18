@@ -18,7 +18,7 @@ Boggle::Boggle() {
     // initialize each entry of visited to false
     for (int i = 0; i < BOARD_SIZE; i++) {
         for (int j = 0; j < BOARD_SIZE; j++) {
-            visited[i][j] = 0; // 0 = false
+            visited[i][j] = 0;
         }
     }
 }
@@ -57,14 +57,15 @@ void Boggle::SolveBoard(bool printBoard, ostream &output) {
             SolveBoardHelper(i, j, i, j, board[i][j], output, 1, printBoard);
         }
     }
+    wordsFound.SaveDictionaryFile("words_found_5.txt");
 }
 
 void Boggle::SaveSolve(string filename) {
     wordsFound.SaveDictionaryFile(filename);
 }
 
-
 void Boggle::SolveBoardHelper(int row, int col, int startRow, int startCol, string currString, ostream& output, int mark, bool printBoard) {
+
     // base case: inbound checking
     if (row < 0 || row > (BOARD_SIZE-1) || col < 0 || col > (BOARD_SIZE-1)) {
         return;
@@ -84,17 +85,22 @@ void Boggle::SolveBoardHelper(int row, int col, int startRow, int startCol, stri
     visited[row][col] = mark;
     mark++;
 
-    // base case (?): check if the currString is a word or not
+    // base case: check if the currString is a word or not
     if (dict.IsWord(currString)) {
-        output << currString << endl;
-        wordsFound.AddWord(currString);
-        if (printBoard) {
-            PrintBoard(output);
+        if (!wordsFound.IsWord(currString)) {
+            wordsFound.AddWord(currString);
+            if (printBoard) {
+                output << "Word: " << currString << endl;
+                output << "Number of Words: " << wordsFound.WordCount() << endl;
+                PrintBoard(output);
+            } else {
+                output << wordsFound.WordCount() << "\t" << currString << endl;
+            }
         }
     }
 
     string north, northeast, east, southeast, south, southwest, west, northwest;
-    // the if statements below will combine the N/NE/E/etc.. strings accordingly depending on whether or not they exist
+    // the if statements below will add the N/NE/E/SE/etc strings accordlingly depending on whether or not they exist
     if (row == 0) {
         northwest = currString;
         north = currString;
@@ -125,6 +131,7 @@ void Boggle::SolveBoardHelper(int row, int col, int startRow, int startCol, stri
         }
     }
 
+
     if (row == BOARD_SIZE-1) {
         south = currString;
         southwest = currString;
@@ -152,18 +159,17 @@ void Boggle::SolveBoardHelper(int row, int col, int startRow, int startCol, stri
     SolveBoardHelper(row, col - 1, startRow, startCol, west, output, mark, printBoard); // W
     SolveBoardHelper(row - 1, col - 1, startRow, startCol, northwest, output, mark, printBoard); // NW
 
-    // setting the last visited position back to 0
-    if (dict.IsPrefix(currString) && !(row == startRow && col == startCol)) {
+    if (dict.IsPrefix(currString)) {
         visited[row][col] = 0;
     } else {
-            for (int i = 0; i < BOARD_SIZE; i++) {
-                for (int j = 0; j < BOARD_SIZE; j++) {
-                    if (i == startRow && j == startCol) {
-                        continue;
-                    }
-                    visited[i][j] = 0;
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            for (int j = 0; j < BOARD_SIZE; j++) {
+                if (i == startRow && j == startCol) {
+                    continue;
                 }
+                visited[i][j] = 0;
             }
+        }
     }
 }
 
@@ -183,10 +189,11 @@ void Boggle::PrintBoard(ostream &output) {
 
         // print the nth row in the visited matrix
         for (int k = 0; k < BOARD_SIZE; k++) {
-            output << "  " << visited[i][k] << " ";
+            output << "  " << visited[i][k] << "  ";
         }
-        cout << endl;
+        output << endl;
     }
+    output << endl;
 }
 
 
